@@ -44,7 +44,7 @@ fun App() {
             Surface(modifier = Modifier.fillMaxSize()) {
                 Column(modifier = Modifier.safeContentPadding()) {
                     Text(
-                        text = "Items on ${getPlatform().name}",
+                        text = "Items on ${Greeting().greet()}",
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                     )
