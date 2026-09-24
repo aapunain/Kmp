@@ -59,16 +59,14 @@ kotlin {
             implementation(libs.compose.uiTooling)
         }
         commonMain.dependencies {
-            api(project(":core"))
-
             // Composition root: this module is the only one that depends on every
             // layer, and it does so purely to call each layer's Koin module
             // function. It never references an implementation class.
             implementation(project(":presentation"))
-            implementation(project(":domain"))
-            implementation(project(":data"))
-            implementation(project(":network"))
-            implementation(project(":concurrency"))
+            implementation(project(":core:domain"))
+            implementation(project(":core:data"))
+            implementation(project(":core:network"))
+            implementation(project(":core:concurrency"))
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
 

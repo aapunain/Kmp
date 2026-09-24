@@ -2,8 +2,8 @@ package com.self.kmp
 
 import com.self.kmp.concurrency.di.concurrencyModule
 import com.self.kmp.data.di.dataModule
+import com.self.kmp.di.domainModule
 import com.self.kmp.domain.common.AppResult
-import com.self.kmp.domain.di.domainModule
 import com.self.kmp.domain.items.model.Item
 import com.self.kmp.domain.items.repository.ItemsRepository
 import com.self.kmp.domain.items.usecase.GetItemsUseCase
@@ -30,8 +30,8 @@ class CompositionRootTest {
         modules(
             concurrencyModule(),
             networkModule(),
-            domainModule(),
             dataModule(),
+            domainModule(),
             presentationModule(),
         )
     }.koin

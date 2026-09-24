@@ -8,7 +8,7 @@ kotlin {
             // :network is deliberately absent. ApiResult and ItemDto are not on
             // this module's compile classpath, so the layering is enforced by
             // the compiler rather than by code review.
-            implementation(project(":domain"))
+            implementation(project(":core:domain"))
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

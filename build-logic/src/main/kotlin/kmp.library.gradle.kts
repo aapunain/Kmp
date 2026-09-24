@@ -34,8 +34,12 @@ kotlin {
     }
 
     android {
-        // :domain -> com.self.kmp.domain, :network -> com.self.kmp.network, ...
-        namespace = "com.self.kmp." + project.name
+        // Derived from the full Gradle path, not the leaf name: Android
+        // namespaces must be unique across every module in an app, and leaf
+        // names repeat once features arrive.
+        //   :core:domain          -> com.self.kmp.core.domain
+        //   :feature:items:domain -> com.self.kmp.feature.items.domain
+        namespace = "com.self.kmp" + project.path.replace(":", ".")
         compileSdk = libs.findVersion("android-compileSdk").get().requiredVersion.toInt()
         minSdk = libs.findVersion("android-minSdk").get().requiredVersion.toInt()
 
