@@ -1,0 +1,73 @@
+# Detekt overrides. `buildUponDefaultConfig = true` means only deviations from
+# the defaults are listed here.
+#
+# Schema note: this is detekt 2.x, whose config keys differ from the widely
+# copy-pasted 1.23 examples. `build:`/`maxIssues` and the `formatting:` ruleset
+# no longer exist. Findings fail the build by default, so no threshold key is needed.
+#
+# The bar for adding or relaxing a rule: it must catch something a reviewer would
+# genuinely ask to change. Noisy rules train people to ignore the whole report,
+# which is worse than having no report at all. Every relaxation below states why.
+
+complexity:
+  LongParameterList:
+    # Composables legitimately take many parameters, and so does constructor
+    # injection in the data layer.
+    allowedFunctionParameters: 8
+    allowedConstructorParameters: 8
+    ignoreDefaultParameters: true
+    ignoreDataClasses: true
+  TooManyFunctions:
+    allowedFunctionsPerClass: 20
+    allowedFunctionsPerFile: 20
+    ignorePrivate: true
+
+style:
+  MagicNumber:
+    ignorePropertyDeclaration: true
+    ignoreAnnotation: true
+    ignoreRanges: true
+    # detekt's default excludes cover **/test/** but not Kotlin Multiplatform's
+    # source set names, so they have to be listed explicitly.
+    excludes:
+      - '**/commonTest/**'
+      - '**/jvmTest/**'
+      - '**/iosTest/**'
+      - '**/webTest/**'
+      - '**/jsTest/**'
+      - '**/wasmJsTest/**'
+      - '**/androidHostTest/**'
+      - '**/androidDeviceTest/**'
+  MaxLineLength:
+    # Owned by .editorconfig so there is one line-length setting, not two.
+    active: false
+  UnusedPrivateProperty:
+    active: true
+  UnusedPrivateFunction:
+    active: true
+
+exceptions:
+  TooGenericExceptionCaught:
+    # safeApiCall deliberately catches Exception as its last resort, after
+    # rethrowing CancellationException. That is the entire point of the function.
+    excludes:
+      - '**/network/core/SafeApiCall.kt'
+  SwallowedException:
+    excludes:
+      - '**/network/core/SafeApiCall.kt'
+
+naming:
+  FunctionNaming:
+    # @Composable functions are PascalCase by convention.
+    ignoreAnnotated:
+      - 'Composable'
+    # MainViewController() is a factory whose name becomes part of the Objective-C
+    # API consumed from Swift, so it cannot be camelCase.
+    excludes:
+      - '**/MainViewController.kt'
+  MatchingDeclarationName:
+    # Kotlin Multiplatform names `actual` files after the expectation plus a
+    # platform suffix: Platform.ios.kt declares IOSPlatform, Platform.jvm.kt
+    # declares JVMPlatform. That is the ecosystem convention and this rule cannot
+    # express it, so it would fire on every actual in the project.
+    active: false

@@ -12,9 +12,15 @@ This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop (JVM
     Similarly, if you want to edit the Desktop (JVM) specific part, the [jvmMain](./app/shared/src/jvmMain/kotlin)
     folder is the appropriate location.
 
-* [/core](./core/src) is for the code that will be shared between all targets in the project.
-  The most important subfolder is [commonMain](./core/src/commonMain/kotlin). If preferred, you
-  can add code to the platform-specific folders here too.
+* [/core](./core) groups the architecture layers, each one its own Gradle module:
+  [domain](./core/domain/src), [data](./core/data/src), [network](./core/network/src) and
+  [concurrency](./core/concurrency/src). Note that `core` is a directory rather than a module —
+  there is no `:core` project.
+
+* [/presentation](./presentation/src) is for the Compose UI and the ViewModels.
+
+* [/contract](./contract/src) is for the `@Serializable` wire models and endpoint paths that the
+  clients and the server both compile against.
 
 * [/server](./server/src/main/kotlin) is for the Ktor server application.
 

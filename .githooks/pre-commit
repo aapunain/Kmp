@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+#
+# Runs the fast quality gates before every commit. Installed by
+# scripts/install-hooks.sh.
+#
+# Deliberately NOT the full ./gradlew verify: a 6-minute pre-commit hook gets
+# bypassed with --no-verify, and a bypassed hook is worse than no hook. The full
+# suite runs in CI.
+#
+# This exists so that manual edits get the same treatment as agent edits.
+
+set -euo pipefail
+
+echo "pre-commit: ./gradlew qualityCheck"
+
+if ! ./gradlew qualityCheck --quiet; then
+  cat <<'EOF'
+
+pre-commit failed.
+
+  Formatting:     ./gradlew spotlessApply
+  Architecture:   edit moduleGraph in build-logic/src/main/kotlin/kmp.architecture.gradle.kts
+  Stale docs:     ./gradlew architectureDocs
+  Everything:     ./gradlew qualityCheck
+
+Fix the cause rather than disabling the rule. If a rule is genuinely wrong, change it
+deliberately and record an ADR in docs/adr/.
+
+EOF
+  exit 1
+fi

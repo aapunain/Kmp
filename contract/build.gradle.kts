@@ -3,16 +3,14 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
-/**
- * The HTTP contract shared by every client and the server.
- *
- * Charter: `@Serializable` request/response models and endpoint path constants.
- * No logic, no platform code, no dependency beyond kotlinx-serialization. If a
- * type in here is not part of the wire format, it is in the wrong module.
- *
- * The payoff is that renaming a field breaks the compile on both sides at once
- * instead of failing at runtime against a stale client.
- */
+// The HTTP contract shared by every client and the server.
+//
+// Charter: @Serializable request/response models and endpoint path constants.
+// No logic, no platform code, no dependency beyond kotlinx-serialization. If a
+// type in here is not part of the wire format, it is in the wrong module.
+//
+// The payoff is that renaming a field breaks the compile on both sides at once
+// instead of failing at runtime against a stale client.
 kotlin {
     sourceSets {
         commonMain.dependencies {

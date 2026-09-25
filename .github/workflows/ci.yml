@@ -1,0 +1,133 @@
+name: CI
+
+# Standard GitHub-hosted runners are free and unlimited on public repositories,
+# macOS included, so Apple targets are covered here rather than left to laptops.
+# If this repo ever becomes private, the macos job starts consuming paid minutes
+# at a higher multiplier — move it to a main-only trigger at that point.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.daemon=false
+
+jobs:
+  quality:
+    name: Quality gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      # Fast feedback: formatting, detekt, architecture rules, conventions, and the
+      # check that docs/ARCHITECTURE.md still matches moduleGraph.
+      - name: qualityCheck
+        run: ./gradlew qualityCheck
+
+      - name: Upload detekt report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: detekt-report
+          path: build/reports/detekt/
+          if-no-files-found: ignore
+
+  host-agnostic:
+    name: JVM, Android, JS, Wasm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      # JS and Wasm tests run in headless Chrome, which ubuntu-latest provides.
+      - name: Tests on every host-agnostic target
+        run: |
+          ./gradlew \
+            :contract:jvmTest :contract:testAndroidHostTest \
+            :core:domain:jvmTest :core:domain:testAndroidHostTest :core:domain:jsTest :core:domain:wasmJsTest \
+            :core:concurrency:jvmTest :core:concurrency:testAndroidHostTest :core:concurrency:jsTest :core:concurrency:wasmJsTest \
+            :core:network:jvmTest :core:network:testAndroidHostTest :core:network:jsTest :core:network:wasmJsTest \
+            :core:data:jvmTest :core:data:testAndroidHostTest :core:data:jsTest :core:data:wasmJsTest \
+            :presentation:jvmTest :presentation:testAndroidHostTest :presentation:jsTest :presentation:wasmJsTest \
+            :app:shared:jvmTest :app:shared:testAndroidHostTest :app:shared:jsTest :app:shared:wasmJsTest \
+            :server:test
+
+      - name: Coverage floor
+        run: ./gradlew koverVerify
+
+      # Proof the entry points build, not just that the libraries compile.
+      - name: Build app entry points
+        run: |
+          ./gradlew \
+            :app:androidApp:assembleDebug \
+            :app:desktopApp:compileKotlin \
+            :app:webApp:jsBrowserDistribution \
+            :app:webApp:wasmJsBrowserDistribution
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-ubuntu
+          path: '**/build/test-results/**/*.xml'
+          if-no-files-found: ignore
+
+  apple:
+    name: iOS
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: iOS simulator tests
+        run: |
+          ./gradlew \
+            :contract:iosSimulatorArm64Test \
+            :core:domain:iosSimulatorArm64Test \
+            :core:concurrency:iosSimulatorArm64Test \
+            :core:network:iosSimulatorArm64Test \
+            :core:data:iosSimulatorArm64Test \
+            :presentation:iosSimulatorArm64Test \
+            :app:shared:iosSimulatorArm64Test
+
+      - name: Link device framework
+        run: ./gradlew :app:shared:linkDebugFrameworkIosArm64
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-macos
+          path: '**/build/test-results/**/*.xml'
+          if-no-files-found: ignore

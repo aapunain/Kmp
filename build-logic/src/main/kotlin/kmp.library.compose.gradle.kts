@@ -1,10 +1,8 @@
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
-/**
- * Convention plugin for multiplatform library modules that contain Compose UI.
- * Only :presentation uses this today.
- */
+// Convention plugin for multiplatform library modules that contain Compose UI.
+// Only :presentation uses this today.
 plugins {
     id("kmp.library")
     id("org.jetbrains.compose")
