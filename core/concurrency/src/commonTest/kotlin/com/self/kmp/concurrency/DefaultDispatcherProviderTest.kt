@@ -11,7 +11,6 @@ import kotlinx.coroutines.withContext
  * `Dispatchers.IO` being unavailable on Native and on the web.
  */
 class DefaultDispatcherProviderTest {
-
     @Test
     fun ioDispatcherIsUsableOnThisPlatform() = runTest {
         val dispatchers = DefaultDispatcherProvider()

@@ -1,9 +1,9 @@
 package com.self.kmp.network.items.datasource
 
-import com.self.kmp.network.core.ApiError
-import com.self.kmp.network.core.ApiResult
 import com.self.kmp.contract.ApiRoutes
 import com.self.kmp.contract.items.ItemsResponseDto
+import com.self.kmp.network.core.ApiError
+import com.self.kmp.network.core.ApiResult
 import com.self.kmp.network.core.createHttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -23,18 +23,18 @@ import kotlinx.coroutines.test.runTest
  * that a non-2xx status becomes an ApiError rather than an exception.
  */
 class ItemsRemoteDataSourceTest {
-
     @Test
     fun getItemsCallsTheItemsEndpointAndParsesTheBody() = runTest {
-        val engine = MockEngine { request ->
-            assertEquals(HttpMethod.Get, request.method)
-            assertEquals("/${ApiRoutes.ITEMS}", request.url.encodedPath)
-            respond(
-                content = """{"items":[{"id":"1","name":"Kotlin"},{"id":"2","name":"Ktor"}]}""",
-                status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, "application/json"),
-            )
-        }
+        val engine =
+            MockEngine { request ->
+                assertEquals(HttpMethod.Get, request.method)
+                assertEquals("/${ApiRoutes.ITEMS}", request.url.encodedPath)
+                respond(
+                    content = """{"items":[{"id":"1","name":"Kotlin"},{"id":"2","name":"Ktor"}]}""",
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                )
+            }
 
         val result = KtorItemsRemoteDataSource(createHttpClient(engine)).getItems()
 
@@ -44,13 +44,14 @@ class ItemsRemoteDataSourceTest {
 
     @Test
     fun unknownFieldsInTheResponseAreIgnored() = runTest {
-        val engine = MockEngine {
-            respond(
-                content = """{"items":[{"id":"1","name":"Kotlin","addedByBackendLater":true}],"page":1}""",
-                status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, "application/json"),
-            )
-        }
+        val engine =
+            MockEngine {
+                respond(
+                    content = """{"items":[{"id":"1","name":"Kotlin","addedByBackendLater":true}],"page":1}""",
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                )
+            }
 
         val result = KtorItemsRemoteDataSource(createHttpClient(engine)).getItems()
 
@@ -69,13 +70,14 @@ class ItemsRemoteDataSourceTest {
 
     @Test
     fun aBodyThatDoesNotMatchTheDtoBecomesApiErrorSerialization() = runTest {
-        val engine = MockEngine {
-            respond(
-                content = """{"items":"this should have been an array"}""",
-                status = HttpStatusCode.OK,
-                headers = headersOf(HttpHeaders.ContentType, "application/json"),
-            )
-        }
+        val engine =
+            MockEngine {
+                respond(
+                    content = """{"items":"this should have been an array"}""",
+                    status = HttpStatusCode.OK,
+                    headers = headersOf(HttpHeaders.ContentType, "application/json"),
+                )
+            }
 
         val result = KtorItemsRemoteDataSource(createHttpClient(engine)).getItems()
 

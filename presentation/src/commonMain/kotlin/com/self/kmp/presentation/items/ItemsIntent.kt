@@ -7,9 +7,8 @@ package com.self.kmp.presentation.items
  * method per action, so adding a behaviour is a compile error until the
  * `when` in the ViewModel handles it.
  */
-sealed interface ItemsIntent {
+public sealed interface ItemsIntent {
+    public data object Load : ItemsIntent
 
-    data object Load : ItemsIntent
-
-    data object Retry : ItemsIntent
+    public data object Retry : ItemsIntent
 }

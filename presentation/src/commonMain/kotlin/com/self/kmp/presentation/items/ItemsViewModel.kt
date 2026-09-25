@@ -20,22 +20,21 @@ import kotlinx.coroutines.launch
  * [GetItemsUseCase]. What lives here is presentation policy, namely how to turn
  * a domain result into something drawable.
  */
-class ItemsViewModel(
+public class ItemsViewModel(
     private val getItems: GetItemsUseCase,
 ) : ViewModel() {
-
     private val _state = MutableStateFlow(ItemsUiState())
-    val state: StateFlow<ItemsUiState> = _state.asStateFlow()
+    public val state: StateFlow<ItemsUiState> = _state.asStateFlow()
 
     init {
         onIntent(ItemsIntent.Load)
     }
 
-    fun onIntent(intent: ItemsIntent) {
+    public fun onIntent(intent: ItemsIntent) {
         when (intent) {
             ItemsIntent.Load,
             ItemsIntent.Retry,
-                -> loadItems()
+            -> loadItems()
         }
     }
 

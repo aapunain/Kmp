@@ -5,19 +5,18 @@ import kotlinx.coroutines.Dispatchers
 
 /**
  * Dispatchers are handed to the layers that need them instead of being
- * referenced statically. That keeps :data free of platform knowledge and makes
- * repository tests deterministic, since a test can inject a test dispatcher.
+ * referenced statically. That keeps :core:data free of platform knowledge and
+ * makes repository tests deterministic, since a test can inject a test dispatcher.
  */
-interface DispatcherProvider {
-
+public interface DispatcherProvider {
     /** Main/UI dispatcher. Declared in common by kotlinx.coroutines on every target. */
-    val main: CoroutineDispatcher
+    public val main: CoroutineDispatcher
 
     /** CPU-bound work. */
-    val default: CoroutineDispatcher
+    public val default: CoroutineDispatcher
 
     /** Blocking or I/O-bound work. See [platformIoDispatcher] for the catch. */
-    val io: CoroutineDispatcher
+    public val io: CoroutineDispatcher
 }
 
 /**
@@ -28,7 +27,7 @@ interface DispatcherProvider {
  */
 internal expect val platformIoDispatcher: CoroutineDispatcher
 
-class DefaultDispatcherProvider : DispatcherProvider {
+public class DefaultDispatcherProvider : DispatcherProvider {
     override val main: CoroutineDispatcher = Dispatchers.Main
     override val default: CoroutineDispatcher = Dispatchers.Default
     override val io: CoroutineDispatcher = platformIoDispatcher

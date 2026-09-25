@@ -7,10 +7,10 @@ package com.self.kmp.presentation.items
  * display-ready values. Formatting decisions belong to this layer, so the domain
  * model never has to grow fields that only exist to satisfy a layout.
  */
-data class ItemsUiState(
+public data class ItemsUiState(
     val isLoading: Boolean = false,
     val items: List<String> = emptyList(),
     val errorMessage: String? = null,
 ) {
-    val isEmpty: Boolean get() = !isLoading && errorMessage == null && items.isEmpty()
+    public val isEmpty: Boolean get() = !isLoading && errorMessage == null && items.isEmpty()
 }

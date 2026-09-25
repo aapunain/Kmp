@@ -25,15 +25,13 @@ import kotlinx.coroutines.test.setMain
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ItemsViewModelTest {
-
     private class FakeItemsRepository(
         private val result: AppResult<List<Item>>,
     ) : ItemsRepository {
         override suspend fun getItems(): AppResult<List<Item>> = result
     }
 
-    private fun viewModel(result: AppResult<List<Item>>) =
-        ItemsViewModel(GetItemsUseCase(FakeItemsRepository(result)))
+    private fun viewModel(result: AppResult<List<Item>>) = ItemsViewModel(GetItemsUseCase(FakeItemsRepository(result)))
 
     @BeforeTest
     fun setUp() {
@@ -47,11 +45,12 @@ class ItemsViewModelTest {
 
     @Test
     fun itemsAreLoadedOnInitAndExposedAsDisplayStrings() = runTest {
-        val viewModel = viewModel(
-            AppResult.Success(
-                listOf(Item(id = "1", name = "Kotlin"), Item(id = "2", name = "Ktor")),
-            ),
-        )
+        val viewModel =
+            viewModel(
+                AppResult.Success(
+                    listOf(Item(id = "1", name = "Kotlin"), Item(id = "2", name = "Ktor")),
+                ),
+            )
 
         val state = viewModel.state.value
         assertEquals(listOf("Kotlin", "Ktor"), state.items)

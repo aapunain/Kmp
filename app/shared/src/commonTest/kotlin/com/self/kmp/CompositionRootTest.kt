@@ -25,7 +25,6 @@ import org.koin.dsl.koinApplication
  * boundary crossing a real mapper.
  */
 class CompositionRootTest {
-
     private fun koin() = koinApplication {
         modules(
             concurrencyModule(),

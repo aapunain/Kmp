@@ -13,13 +13,12 @@ import com.self.kmp.domain.items.repository.ItemsRepository
  * Keeping these rules here rather than in the ViewModel is the point of the
  * layer. They are testable without Compose, without Ktor, and without a device.
  */
-class GetItemsUseCase(
+public class GetItemsUseCase(
     private val itemsRepository: ItemsRepository,
 ) {
-
-    suspend operator fun invoke(): AppResult<List<Item>> =
-        itemsRepository.getItems().map { items ->
-            items.filter { it.name.isNotBlank() }
-                .sortedBy { it.name.lowercase() }
-        }
+    public suspend operator fun invoke(): AppResult<List<Item>> = itemsRepository.getItems().map { items ->
+        items
+            .filter { it.name.isNotBlank() }
+            .sortedBy { it.name.lowercase() }
+    }
 }

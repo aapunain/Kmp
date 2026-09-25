@@ -35,14 +35,15 @@ fun Application.module() {
         get("/${ApiRoutes.ITEMS}") {
             call.respond(
                 ItemsResponseDto(
-                    items = listOf(
-                        ItemDto(id = "1", name = "Kotlin Multiplatform"),
-                        ItemDto(id = "2", name = "Compose Multiplatform"),
-                        ItemDto(id = "3", name = "Ktor Client"),
-                        ItemDto(id = "4", name = "kotlinx.serialization"),
-                        ItemDto(id = "5", name = "Koin"),
-                        ItemDto(id = "6", name = "Coroutines"),
-                    ),
+                    items =
+                        listOf(
+                            ItemDto(id = "1", name = "Kotlin Multiplatform"),
+                            ItemDto(id = "2", name = "Compose Multiplatform"),
+                            ItemDto(id = "3", name = "Ktor Client"),
+                            ItemDto(id = "4", name = "kotlinx.serialization"),
+                            ItemDto(id = "5", name = "Koin"),
+                            ItemDto(id = "6", name = "Coroutines"),
+                        ),
                 ),
             )
         }

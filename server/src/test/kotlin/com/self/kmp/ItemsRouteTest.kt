@@ -17,14 +17,14 @@ import kotlin.test.assertEquals
  * very same class the mobile and web clients use.
  */
 class ItemsRouteTest {
-
     @Test
     fun itemsRouteServesTheSharedContractType() = testApplication {
         application { module() }
 
-        val client = createClient {
-            install(ContentNegotiation) { json() }
-        }
+        val client =
+            createClient {
+                install(ContentNegotiation) { json() }
+            }
 
         val response = client.get("/${ApiRoutes.ITEMS}")
 

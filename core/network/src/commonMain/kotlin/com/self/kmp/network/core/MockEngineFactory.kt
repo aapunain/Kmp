@@ -9,7 +9,8 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 
-private val ITEMS_RESPONSE_JSON = """
+private val ITEMS_RESPONSE_JSON =
+    """
     {
       "items": [
         { "id": "1", "name": "Kotlin Multiplatform" },
@@ -22,7 +23,7 @@ private val ITEMS_RESPONSE_JSON = """
         { "id": null, "name": "dropped because it has no id" }
       ]
     }
-""".trimIndent()
+    """.trimIndent()
 
 /**
  * Stand-in for the real backend.
@@ -35,12 +36,16 @@ private val ITEMS_RESPONSE_JSON = """
  */
 internal fun createMockEngine(): HttpClientEngine = MockEngine { request ->
     when (request.url.encodedPath) {
-        "/${ApiRoutes.ITEMS}" -> respond(
-            content = ITEMS_RESPONSE_JSON,
-            status = HttpStatusCode.OK,
-            headers = headersOf(HttpHeaders.ContentType, "application/json"),
-        )
+        "/${ApiRoutes.ITEMS}" -> {
+            respond(
+                content = ITEMS_RESPONSE_JSON,
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
 
-        else -> respondError(HttpStatusCode.NotFound)
+        else -> {
+            respondError(HttpStatusCode.NotFound)
+        }
     }
 }

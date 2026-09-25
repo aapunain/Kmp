@@ -22,22 +22,23 @@ internal class ItemsRepositoryImpl(
     private val itemsRemoteDataSource: ItemsRemoteDataSource,
     private val dispatchers: DispatcherProvider,
 ) : ItemsRepository {
-
     override suspend fun getItems(): AppResult<List<Item>> = withContext(dispatchers.io) {
         // Ktor already suspends without blocking, so this withContext is not
         // strictly required for the call itself. It is here because the mapping
         // below is our work, not Ktor's, and because an injected dispatcher is
         // what makes this class testable without touching a real thread pool.
         when (val response = itemsRemoteDataSource.getItems()) {
-            is ApiResult.Success ->
+            is ApiResult.Success -> {
                 AppResult.Success(
                     response.data.items
                         .orEmpty()
                         .mapNotNull { it.toDomainOrNull() },
                 )
+            }
 
-            is ApiResult.Failure ->
+            is ApiResult.Failure -> {
                 AppResult.Failure(response.error.toAppError())
+            }
         }
     }
 }

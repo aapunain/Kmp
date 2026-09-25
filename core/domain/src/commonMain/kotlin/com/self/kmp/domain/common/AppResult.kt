@@ -7,19 +7,22 @@ package com.self.kmp.domain.common
  * type system to deal with failure. Nothing above the data layer can throw a
  * transport exception at us by surprise.
  */
-sealed interface AppResult<out T> {
+public sealed interface AppResult<out T> {
+    public data class Success<out T>(
+        val data: T,
+    ) : AppResult<T>
 
-    data class Success<out T>(val data: T) : AppResult<T>
-
-    data class Failure(val error: AppError) : AppResult<Nothing>
+    public data class Failure(
+        val error: AppError,
+    ) : AppResult<Nothing>
 }
 
-inline fun <T, R> AppResult<T>.map(transform: (T) -> R): AppResult<R> = when (this) {
+public inline fun <T, R> AppResult<T>.map(transform: (T) -> R): AppResult<R> = when (this) {
     is AppResult.Success -> AppResult.Success(transform(data))
     is AppResult.Failure -> this
 }
 
-inline fun <T, R> AppResult<T>.fold(
+public inline fun <T, R> AppResult<T>.fold(
     onSuccess: (T) -> R,
     onFailure: (AppError) -> R,
 ): R = when (this) {
@@ -27,6 +30,6 @@ inline fun <T, R> AppResult<T>.fold(
     is AppResult.Failure -> onFailure(error)
 }
 
-fun <T> T.asSuccess(): AppResult<T> = AppResult.Success(this)
+public fun <T> T.asSuccess(): AppResult<T> = AppResult.Success(this)
 
-fun AppError.asFailure(): AppResult<Nothing> = AppResult.Failure(this)
+public fun AppError.asFailure(): AppResult<Nothing> = AppResult.Failure(this)

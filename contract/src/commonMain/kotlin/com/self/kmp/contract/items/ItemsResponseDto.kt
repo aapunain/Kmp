@@ -12,12 +12,12 @@ import kotlinx.serialization.Serializable
  * :core:domain is allowed to be strict.
  */
 @Serializable
-data class ItemsResponseDto(
+public data class ItemsResponseDto(
     @SerialName("items") val items: List<ItemDto>? = null,
 )
 
 @Serializable
-data class ItemDto(
+public data class ItemDto(
     @SerialName("id") val id: String? = null,
     @SerialName("name") val name: String? = null,
 )

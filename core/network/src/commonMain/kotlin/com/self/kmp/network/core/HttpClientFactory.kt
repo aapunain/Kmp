@@ -12,11 +12,12 @@ import kotlinx.serialization.json.Json
 
 internal const val BASE_URL: String = "https://api.example.com/"
 
-internal val AppJson: Json = Json {
-    ignoreUnknownKeys = true
-    isLenient = true
-    explicitNulls = false
-}
+internal val AppJson: Json =
+    Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        explicitNulls = false
+    }
 
 /**
  * The engine is a parameter rather than a hardcoded choice. That is the seam

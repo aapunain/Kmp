@@ -14,7 +14,6 @@ import kotlinx.coroutines.test.runTest
  * a hand-written fake is the portable answer in KMP anyway.
  */
 class GetItemsUseCaseTest {
-
     private class FakeItemsRepository(
         private val result: AppResult<List<Item>>,
     ) : ItemsRepository {
@@ -23,16 +22,17 @@ class GetItemsUseCaseTest {
 
     @Test
     fun blankNamesAreDroppedAndTheRestIsSortedCaseInsensitively() = runTest {
-        val repository = FakeItemsRepository(
-            AppResult.Success(
-                listOf(
-                    Item(id = "1", name = "Zebra"),
-                    Item(id = "2", name = "   "),
-                    Item(id = "3", name = "apple"),
-                    Item(id = "4", name = "Mango"),
+        val repository =
+            FakeItemsRepository(
+                AppResult.Success(
+                    listOf(
+                        Item(id = "1", name = "Zebra"),
+                        Item(id = "2", name = "   "),
+                        Item(id = "3", name = "apple"),
+                        Item(id = "4", name = "Mango"),
+                    ),
                 ),
-            ),
-        )
+            )
 
         val result = GetItemsUseCase(repository).invoke()
 

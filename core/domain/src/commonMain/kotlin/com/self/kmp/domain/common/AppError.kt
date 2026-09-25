@@ -8,23 +8,24 @@ package com.self.kmp.domain.common
  * Translating transport failures into these cases is the job of the data layer,
  * which is the single place where `ApiError` and `AppError` are both visible.
  */
-sealed interface AppError {
-
+public sealed interface AppError {
     /** The request could not reach the backend at all, or it timed out. */
-    data object NoConnectivity : AppError
+    public data object NoConnectivity : AppError
 
     /** The caller is not authenticated, or the session is no longer valid. */
-    data object Unauthorized : AppError
+    public data object Unauthorized : AppError
 
     /** The requested resource does not exist. */
-    data object NotFound : AppError
+    public data object NotFound : AppError
 
     /** The backend is reachable but currently unable to serve the request. */
-    data object ServerUnavailable : AppError
+    public data object ServerUnavailable : AppError
 
     /** The backend answered, but not in a shape this app understands. */
-    data object UnexpectedResponse : AppError
+    public data object UnexpectedResponse : AppError
 
     /** Anything we have not modelled explicitly. */
-    data class Unknown(val message: String? = null) : AppError
+    public data class Unknown(
+        val message: String? = null,
+    ) : AppError
 }

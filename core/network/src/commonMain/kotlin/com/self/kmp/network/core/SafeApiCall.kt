@@ -14,9 +14,7 @@ import kotlinx.serialization.SerializationException
  * remote data source funnels through here, which is what makes "all APIs return
  * the same shape" true rather than aspirational.
  */
-internal suspend inline fun <T> safeApiCall(
-    crossinline block: suspend () -> T,
-): ApiResult<T> = try {
+internal suspend inline fun <T> safeApiCall(crossinline block: suspend () -> T): ApiResult<T> = try {
     ApiResult.Success(block())
 } catch (cancellation: CancellationException) {
     // Never swallow cancellation: doing so breaks structured concurrency and

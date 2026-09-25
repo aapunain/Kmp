@@ -27,7 +27,6 @@ import kotlinx.coroutines.test.runTest
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class ItemsRepositoryImplTest {
-
     private class FakeItemsRemoteDataSource(
         private val result: ApiResult<ItemsResponseDto>,
     ) : ItemsRemoteDataSource {
@@ -49,14 +48,16 @@ class ItemsRepositoryImplTest {
 
     @Test
     fun dtosAreMappedToDomainModelsAndUnusableRecordsAreDropped() = runTest {
-        val response = ItemsResponseDto(
-            items = listOf(
-                ItemDto(id = "1", name = "Kotlin"),
-                ItemDto(id = null, name = "no id, cannot be represented"),
-                ItemDto(id = "  ", name = "blank id, also dropped"),
-                ItemDto(id = "2", name = null),
-            ),
-        )
+        val response =
+            ItemsResponseDto(
+                items =
+                    listOf(
+                        ItemDto(id = "1", name = "Kotlin"),
+                        ItemDto(id = null, name = "no id, cannot be represented"),
+                        ItemDto(id = "  ", name = "blank id, also dropped"),
+                        ItemDto(id = "2", name = null),
+                    ),
+            )
 
         val result = repository(ApiResult.Success(response)).getItems()
 
@@ -77,12 +78,13 @@ class ItemsRepositoryImplTest {
 
     @Test
     fun httpStatusCodesAreTranslatedIntoDomainErrors() = runTest {
-        val cases = mapOf(
-            401 to AppError.Unauthorized,
-            403 to AppError.Unauthorized,
-            404 to AppError.NotFound,
-            503 to AppError.ServerUnavailable,
-        )
+        val cases =
+            mapOf(
+                401 to AppError.Unauthorized,
+                403 to AppError.Unauthorized,
+                404 to AppError.NotFound,
+                503 to AppError.ServerUnavailable,
+            )
 
         cases.forEach { (code, expected) ->
             val result = repository(ApiResult.Failure(ApiError.Http(code))).getItems()
@@ -92,11 +94,12 @@ class ItemsRepositoryImplTest {
 
     @Test
     fun transportFailuresAreTranslatedIntoDomainErrors() = runTest {
-        val cases = mapOf<ApiError, AppError>(
-            ApiError.NoInternet to AppError.NoConnectivity,
-            ApiError.Timeout to AppError.NoConnectivity,
-            ApiError.Serialization("boom") to AppError.UnexpectedResponse,
-        )
+        val cases =
+            mapOf<ApiError, AppError>(
+                ApiError.NoInternet to AppError.NoConnectivity,
+                ApiError.Timeout to AppError.NoConnectivity,
+                ApiError.Serialization("boom") to AppError.UnexpectedResponse,
+            )
 
         cases.forEach { (apiError, expected) ->
             val result = repository(ApiResult.Failure(apiError)).getItems()

@@ -5,6 +5,6 @@ import com.self.kmp.concurrency.DispatcherProvider
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
-fun concurrencyModule(): Module = module {
+public fun concurrencyModule(): Module = module {
     single<DispatcherProvider> { DefaultDispatcherProvider() }
 }

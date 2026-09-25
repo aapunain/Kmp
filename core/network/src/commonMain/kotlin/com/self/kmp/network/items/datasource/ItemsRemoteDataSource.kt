@@ -15,16 +15,14 @@ import io.ktor.client.request.get
  * depends on. Renaming a field or moving an endpoint is therefore a compile
  * error on both sides rather than a 4xx discovered in QA.
  */
-interface ItemsRemoteDataSource {
-
+public interface ItemsRemoteDataSource {
     /** GET /items */
-    suspend fun getItems(): ApiResult<ItemsResponseDto>
+    public suspend fun getItems(): ApiResult<ItemsResponseDto>
 }
 
 internal class KtorItemsRemoteDataSource(
     private val httpClient: HttpClient,
 ) : ItemsRemoteDataSource {
-
     override suspend fun getItems(): ApiResult<ItemsResponseDto> = safeApiCall {
         httpClient.get(ApiRoutes.ITEMS).body()
     }

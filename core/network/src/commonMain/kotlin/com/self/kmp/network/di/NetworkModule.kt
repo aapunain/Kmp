@@ -14,7 +14,7 @@ import org.koin.dsl.module
  * ever resolve [ItemsRemoteDataSource]; the HttpClient is not part of the
  * module's public API.
  */
-fun networkModule(): Module = module {
+public fun networkModule(): Module = module {
     single<HttpClientEngine> { createMockEngine() }
     single<HttpClient> { createHttpClient(engine = get()) }
     single<ItemsRemoteDataSource> { KtorItemsRemoteDataSource(httpClient = get()) }

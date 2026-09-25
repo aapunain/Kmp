@@ -28,7 +28,7 @@ import org.koin.compose.viewmodel.koinViewModel
  * Stateful entry point: the only Composable that knows about DI or a ViewModel.
  */
 @Composable
-fun ItemsScreen(
+public fun ItemsScreen(
     modifier: Modifier = Modifier,
     viewModel: ItemsViewModel = koinViewModel(),
 ) {
@@ -58,21 +58,29 @@ internal fun ItemsContent(
         contentAlignment = Alignment.Center,
     ) {
         when {
-            state.isLoading -> CircularProgressIndicator(
-                modifier = Modifier.semantics { }, // loading indicator is announced by role
-            )
+            state.isLoading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.semantics { }, // loading indicator is announced by role
+                )
+            }
 
-            state.errorMessage != null -> ErrorState(
-                message = state.errorMessage,
-                onRetry = { onIntent(ItemsIntent.Retry) },
-            )
+            state.errorMessage != null -> {
+                ErrorState(
+                    message = state.errorMessage,
+                    onRetry = { onIntent(ItemsIntent.Retry) },
+                )
+            }
 
-            state.isEmpty -> Text(
-                text = "Nothing to show yet.",
-                style = MaterialTheme.typography.bodyLarge,
-            )
+            state.isEmpty -> {
+                Text(
+                    text = "Nothing to show yet.",
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            }
 
-            else -> ItemsList(items = state.items)
+            else -> {
+                ItemsList(items = state.items)
+            }
         }
     }
 }

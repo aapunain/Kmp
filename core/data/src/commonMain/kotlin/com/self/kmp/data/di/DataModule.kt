@@ -9,7 +9,7 @@ import org.koin.dsl.module
  * The binding of a domain interface to a data implementation happens here, which
  * is the only reason :app:shared does not need to see ItemsRepositoryImpl.
  */
-fun dataModule(): Module = module {
+public fun dataModule(): Module = module {
     single<ItemsRepository> {
         ItemsRepositoryImpl(
             itemsRemoteDataSource = get(),

@@ -7,7 +7,7 @@ package com.self.kmp.domain.items.model
  * nullable fields that only exist because the backend might omit them, and no
  * field names dictated by the JSON. The data layer absorbs all of that.
  */
-data class Item(
+public data class Item(
     val id: String,
     val name: String,
 )
