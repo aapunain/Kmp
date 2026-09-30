@@ -23,6 +23,7 @@ val moduleGraph: Map<String, Set<String>> =
         ":contract" to emptySet(),
         ":core:domain" to emptySet(),
         ":core:concurrency" to emptySet(),
+        ":feature:auth" to emptySet(),
         ":core:network" to setOf(":contract"),
         ":core:data" to setOf(":core:domain", ":core:network", ":core:concurrency"),
         ":presentation" to setOf(":core:domain"),
@@ -33,6 +34,7 @@ val moduleGraph: Map<String, Set<String>> =
                 ":core:data",
                 ":core:network",
                 ":core:concurrency",
+                ":feature:auth",
             ),
         ":app:androidApp" to setOf(":app:shared"),
         ":app:desktopApp" to setOf(":app:shared"),
@@ -49,6 +51,8 @@ val moduleCharters: Map<String, String> =
             "Business policy. Zero dependencies, not even coroutines or a DI framework.",
         ":core:concurrency" to
             "Dispatchers. If it is not a CoroutineDispatcher or a scope, it goes elsewhere.",
+        ":feature:auth" to
+            "Device authentication, end to end. The only module that knows BiometricPrompt and LAContext exist.",
         ":core:network" to
             "Wire mechanics: HTTP, JSON, ApiResult. Nothing that knows what the data means.",
         ":core:data" to

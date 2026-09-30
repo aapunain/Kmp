@@ -13,6 +13,7 @@ web (JS + Wasm) and a Ktor server. Kotlin 2.4.20, Gradle 9.5.1, AGP 9.1.1.
 app/          entry points: androidApp, desktopApp, iosApp, webApp, shared
 contract/     HTTP models + endpoint paths, shared with the server
 core/         domain, data, network, concurrency   (a directory, NOT a module)
+feature/      self-contained capabilities, layered internally (auth)
 presentation/ Compose UI + ViewModels
 server/       Ktor backend
 build-logic/  convention plugins and the executable architecture rules

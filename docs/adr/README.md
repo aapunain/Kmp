@@ -44,3 +44,4 @@ So the split is:
 | [0012](0012-fakes-not-mocks.md) | Hand-written fakes, and every test runs on every target |
 | [0013](0013-mock-engine-default.md) | MockEngine is the default HTTP engine; the engine is a parameter |
 | [0014](0014-executable-quality-gates.md) | Quality rules are executable; one command means "safe" |
+| [0015](0015-device-auth-app-lock.md) | Gate app launch behind the device screen lock on Android and iOS |

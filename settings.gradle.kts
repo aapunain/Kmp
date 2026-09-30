@@ -54,6 +54,10 @@ include(":core:data")
 include(":core:network")
 include(":core:concurrency")
 
+// Feature modules. Self-contained user-facing capabilities, layered internally with
+// domain/data/presentation/di packages rather than sub-modules. See ADR-0002.
+include(":feature:auth")
+
 // The HTTP contract shared by the clients and the server. Serializable wire
 // models and endpoint paths only, so a change to the wire format is a compile
 // error on both sides.

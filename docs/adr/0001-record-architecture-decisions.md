@@ -22,8 +22,17 @@ Split documentation into three kinds, treated differently:
 
 1. **Current state is derived, never described.** The module graph is generated from
    `moduleGraph` into `docs/ARCHITECTURE.md`, and a stale copy fails the build.
-2. **Decisions are append-only ADRs** in `docs/adr/`, dated. An accepted ADR is
-   never edited except to mark it Superseded with a link to its replacement.
+2. **Decisions are recorded as ADRs** in `docs/adr/`, dated.
+
+   **Before v1, ADRs are edited in place.** While the architecture is still being
+   settled, superseding chains are noise: there are no external consumers depending on
+   a decision's history, and a reader wants the current answer rather than an
+   archaeology exercise. When an approach is rejected — including one we built and then
+   replaced — record it in that ADR's **Alternatives considered** section, which is its
+   natural home anyway. Nothing is lost.
+
+   **Append-only begins at release.** From v1, an accepted ADR is never edited except
+   to mark it Superseded with a link to its replacement.
 3. **Rules are executable wherever possible.** Prose is the last resort, reserved
    for things no build tool can express.
 

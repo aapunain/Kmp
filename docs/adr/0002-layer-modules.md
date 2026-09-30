@@ -22,6 +22,28 @@ core/domain  core/data  core/network  core/concurrency   presentation/  contract
 organisational, and it establishes the axis that a future `feature/` directory will
 contrast with.
 
+## The rule for choosing, added later
+
+Experience with `feature/auth` showed that some capabilities do not decompose into the
+flat layers at all: device authentication has its own domain, data and UI, and splitting
+it across `:core:domain`, `:core:data` and `:presentation` would have scattered one
+cohesive thing across three modules for no benefit. So the project now has two
+organising principles, and the rule for picking is:
+
+> **`core/<capability>`** — cross-cutting infrastructure with no UI of its own, used by
+> two or more features. Examples: `concurrency`, `network`.
+>
+> **`feature/<name>`** — a self-contained user-facing capability, layered internally
+> with `domain/`, `data/`, `presentation/` and `di/` **packages** rather than
+> sub-modules. Example: `auth`.
+
+Layers-as-packages inside a feature is deliberate: `internal` plus `explicitApi()` gives
+the same enforcement as sub-modules at a quarter of the Gradle. Split a feature into
+`:feature:x:domain` and friends only when it grows enough to hurt.
+
+This also gives `core/` the meaning it previously lacked — it was a prefix on every
+non-app module and distinguished nothing. `feature/` is the contrast that fixes that.
+
 Inside each layer module, code is packaged **by feature**:
 `com.self.kmp.domain.items.*`, `com.self.kmp.data.items.*`. That makes a later split
 into `feature/<name>/` a folder move rather than an untangling job.

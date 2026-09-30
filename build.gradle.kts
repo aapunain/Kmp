@@ -41,6 +41,7 @@ spotless {
 // Treat the floor as a ratchet against regression, not as a quality score.
 dependencies {
     kover(project(":contract"))
+    kover(project(":feature:auth"))
     kover(project(":core:concurrency"))
     kover(project(":core:data"))
     kover(project(":core:domain"))
@@ -74,6 +75,17 @@ kover {
                 // Counting them would only make the number harder to interpret.
                 annotatedBy("androidx.compose.runtime.Composable")
                 classes("*.di.*")
+                // :core:auth is thin adapters over BiometricPrompt and LAContext.
+                // They cannot execute on a host JVM, so counting them would measure
+                // nothing and only depress the number. The launch *policy* they serve
+                // lives in :core:domain and is fully tested there.
+                // Thin adapters over BiometricPrompt and LAContext. They cannot execute
+                // on a host JVM, so counting them measures nothing. The policy they
+                // serve is fully tested in the feature's domain package.
+                classes("com.self.kmp.feature.auth.data.Android*")
+                classes("com.self.kmp.feature.auth.data.Ios*")
+                classes("com.self.kmp.feature.auth.data.Unsupported*")
+                classes("com.self.kmp.feature.auth.presentation.*DeviceAuthPrompt*")
             }
         }
         verify {
@@ -92,6 +104,7 @@ kover {
 val multiplatformModules =
     listOf(
         ":contract",
+        ":feature:auth",
         ":core:concurrency",
         ":core:data",
         ":core:domain",

@@ -63,6 +63,10 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
+
+            // `api`, not `implementation`: FragmentActivity appears in the signature
+            // of registerAuthActivity, so :app:androidApp needs the type too.
+            api(libs.androidx.biometric)
         }
         commonMain.dependencies {
             // Composition root: this module is the only one that depends on every
@@ -73,6 +77,7 @@ kotlin {
             implementation(project(":core:data"))
             implementation(project(":core:network"))
             implementation(project(":core:concurrency"))
+            implementation(project(":feature:auth"))
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
 
