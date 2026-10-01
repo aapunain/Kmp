@@ -8,25 +8,33 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.self.kmp.concurrency.di.concurrencyModule
 import com.self.kmp.data.di.dataModule
 import com.self.kmp.database.di.databaseModule
 import com.self.kmp.di.domainModule
+import com.self.kmp.di.navigationModule
 import com.self.kmp.feature.auth.di.authModule
 import com.self.kmp.feature.auth.presentation.AuthGate
+import com.self.kmp.navigation.NavigationIntent
+import com.self.kmp.navigation.NavigationViewModel
 import com.self.kmp.navigation.SampleRoute
 import com.self.kmp.navigation.TodoRoute
-import com.self.kmp.navigation.backStackFor
 import com.self.kmp.network.di.networkModule
 import com.self.kmp.presentation.di.presentationModule
 import com.self.kmp.presentation.items.ItemsScreen
 import com.self.kmp.presentation.todo.TodoScreen
 import org.koin.compose.KoinApplication
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 /**
  * The composition root.
@@ -51,6 +59,7 @@ fun App(deepLink: String? = null) {
                 domainModule(),
                 authModule(),
                 presentationModule(),
+                navigationModule(),
             )
         },
     ) {
@@ -68,17 +77,24 @@ fun App(deepLink: String? = null) {
 
 @Composable
 private fun AppNavDisplay(deepLink: String?) {
-    // rememberNavBackStack would persist across process death; a plain remember is
-    // enough here because the deep link is re-delivered on a cold start anyway.
-    val backStack = androidx.compose.runtime.remember { backStackFor(deepLink).toMutableList() }
-    val stack =
-        androidx.compose.runtime.remember {
-            androidx.compose.runtime.mutableStateListOf(*backStack.toTypedArray())
-        }
+    // Resolved here, outside NavDisplay, so it belongs to the screen-level
+    // ViewModelStoreOwner (the Activity on Android) and survives a configuration change.
+    // The deep link is only read the first time; see NavigationViewModel.
+    val navigation = koinViewModel<NavigationViewModel> { parametersOf(deepLink) }
+    val backStack by navigation.backStack.collectAsStateWithLifecycle()
 
     NavDisplay(
-        backStack = stack,
-        onBack = { stack.removeLastOrNull() },
+        backStack = backStack,
+        onBack = { navigation.onIntent(NavigationIntent.Back) },
+        // Replacing the default list, so the saveable-state decorator has to be restated.
+        // The ViewModelStore decorator gives each entry its own ViewModelStoreOwner:
+        // koinViewModel() inside a screen is then scoped to that entry and cleared when it
+        // is popped, instead of living as long as the Activity.
+        entryDecorators =
+            listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator(),
+            ),
         entryProvider = { key ->
             when (key) {
                 is TodoRoute -> {
@@ -89,7 +105,9 @@ private fun AppNavDisplay(deepLink: String?) {
                                 style = MaterialTheme.typography.titleLarge,
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                             )
-                            TodoScreen(onOpenSample = { stack.add(SampleRoute) })
+                            TodoScreen(
+                                onOpenSample = { navigation.onIntent(NavigationIntent.Open(SampleRoute)) },
+                            )
                         }
                     }
                 }

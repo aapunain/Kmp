@@ -3,16 +3,21 @@ package com.self.kmp
 import com.self.kmp.concurrency.di.concurrencyModule
 import com.self.kmp.data.di.dataModule
 import com.self.kmp.di.domainModule
+import com.self.kmp.di.navigationModule
 import com.self.kmp.domain.common.AppResult
 import com.self.kmp.domain.items.model.Item
 import com.self.kmp.domain.items.repository.ItemsRepository
 import com.self.kmp.domain.items.usecase.GetItemsUseCase
+import com.self.kmp.navigation.NavigationViewModel
+import com.self.kmp.navigation.SampleRoute
+import com.self.kmp.navigation.TodoRoute
 import com.self.kmp.network.di.networkModule
 import com.self.kmp.presentation.di.presentationModule
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
+import org.koin.core.parameter.parametersOf
 import org.koin.dsl.koinApplication
 
 /**
@@ -32,8 +37,22 @@ class CompositionRootTest {
             dataModule(),
             domainModule(),
             presentationModule(),
+            navigationModule(),
         )
     }.koin
+
+    @Test
+    fun theNavigationViewModelReceivesTheDeepLinkThroughKoin() {
+        // The parameter crosses Koin untyped, so a wrong getOrNull<T>() would compile and
+        // silently start every launch on the default stack.
+        val koin = koin()
+
+        val linked = koin.get<NavigationViewModel> { parametersOf("kmp://sample") }
+        val plain = koin.get<NavigationViewModel> { parametersOf(null) }
+
+        assertEquals(listOf(TodoRoute, SampleRoute), linked.backStack.value)
+        assertEquals(listOf(TodoRoute), plain.backStack.value)
+    }
 
     @Test
     fun everyDependencyInTheGraphCanBeResolved() {

@@ -83,6 +83,9 @@ kotlin {
             implementation(project(":feature:auth"))
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
+            // NavigationViewModel is registered with viewModel { } and resolved with
+            // koinViewModel(), the same as every other ViewModel in the project.
+            implementation(libs.koin.composeViewmodel)
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

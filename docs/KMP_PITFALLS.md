@@ -325,3 +325,25 @@ Confirm what is actually uncovered before adding an exclusion:
 
 In this case the report showed roughly a third of the misses were generated, and the
 rest were genuinely untested — so the fix was four exclusions plus 47 real tests.
+
+---
+
+## 17. `remember` does not survive an Android configuration change
+
+**2026-10.** Found in review: the Nav3 back stack was held in `remember`.
+
+Rotation, dark mode, locale, font scale and foldable/split-screen resizes all destroy
+and recreate the Activity, and with it the composition. Anything in `remember` is
+rebuilt. On iOS, desktop and web the same events only re-layout, so the bug is
+invisible everywhere except Android.
+
+It was worse than "back to the start screen": the stack was rebuilt from
+`intent.data`, so a launch deep link was **replayed** on every rotation, even after the
+user had navigated away from it.
+
+**Resolution.** State that must outlive a recreation belongs in a ViewModel (survives
+configuration changes) or in saved state (`rememberSaveable`, `rememberNavBackStack`,
+which also survive process death). The back stack now lives in `NavigationViewModel`;
+see [ADR-0017](adr/0017-navigation-3.md).
+
+Read "a plain `remember` is enough here" as a claim to verify by rotating the device.

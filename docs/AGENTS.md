@@ -121,6 +121,7 @@ why, but do not silently weaken it.
 | MVI shape, error model, DI ownership, naming | [docs/CONVENTIONS.md](CONVENTIONS.md) |
 | What to test where, and KMP test constraints | [docs/TESTING.md](TESTING.md) |
 | Platform traps that have already bitten us | [docs/KMP_PITFALLS.md](KMP_PITFALLS.md) |
+| Agreed work that is deferred, and its open questions | [docs/TODO.md](TODO.md) |
 | Why a rule exists | [docs/adr/](adr/) |
 
 Read the relevant ADR before proposing to change a rule. The ADR explains what the
