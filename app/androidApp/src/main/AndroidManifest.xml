@@ -16,6 +16,38 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!--
+              Deep links. The custom scheme works without any server setup:
+                adb shell am start -a android.intent.action.VIEW -d "kmp://todo"
+                adb shell am start -a android.intent.action.VIEW -d "kmp://sample"
+              Parsing lives in commonMain (navigation/Routes.kt) so every platform
+              shares one implementation.
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="kmp" />
+            </intent-filter>
+
+            <!--
+              The https form needs a verified Digital Asset Links file hosted at
+              https://kmp.self.com/.well-known/assetlinks.json to open without a
+              chooser. Left unverified deliberately: the domain is a placeholder.
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="kmp.self.com"
+                    android:scheme="https" />
+            </intent-filter>
         </activity>
     </application>
 

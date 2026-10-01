@@ -10,6 +10,12 @@ plugins {
 // to this block should require an argument.
 kotlin {
     sourceSets {
+        commonMain.dependencies {
+            // The one permitted dependency, added when `Flow` first appeared in a
+            // repository signature (TodoRepository). `api` because it is part of that
+            // public signature. ADR-0004 anticipated exactly this.
+            api(libs.kotlinx.coroutines.core)
+        }
         commonTest.dependencies {
             implementation(libs.kotlinx.coroutines.test)
         }

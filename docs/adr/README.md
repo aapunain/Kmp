@@ -33,7 +33,7 @@ So the split is:
 | [0001](0001-record-architecture-decisions.md) | Record decisions as append-only ADRs; derive current state |
 | [0002](0002-layer-modules.md) | Flat layer modules; `core/` is a directory, not a module |
 | [0003](0003-no-catch-all-modules.md) | No module named core, common, util or shared |
-| [0004](0004-domain-has-no-dependencies.md) | `:core:domain` depends on nothing |
+| [0004](0004-domain-has-no-dependencies.md) | `:core:domain` depends on nothing but coroutines |
 | [0005](0005-two-result-types.md) | Separate transport and domain result types |
 | [0006](0006-datasources-return-not-throw.md) | Remote data sources return `ApiResult` rather than throwing |
 | [0007](0007-injected-dispatchers.md) | Dispatchers are injected; `Dispatchers.IO` is banned from common code |
@@ -45,3 +45,5 @@ So the split is:
 | [0013](0013-mock-engine-default.md) | MockEngine is the default HTTP engine; the engine is a parameter |
 | [0014](0014-executable-quality-gates.md) | Quality rules are executable; one command means "safe" |
 | [0015](0015-device-auth-app-lock.md) | Gate app launch behind the device screen lock on Android and iOS |
+| [0016](0016-room-local-persistence.md) | Room 3 for local persistence, one narrow interface per table |
+| [0017](0017-navigation-3.md) | Navigation 3 with multiplatform deep links |

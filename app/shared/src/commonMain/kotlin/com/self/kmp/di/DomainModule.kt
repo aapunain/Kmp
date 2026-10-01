@@ -1,6 +1,10 @@
 package com.self.kmp.di
 
 import com.self.kmp.domain.items.usecase.GetItemsUseCase
+import com.self.kmp.domain.todo.AddTodoUseCase
+import com.self.kmp.domain.todo.DeleteTodoUseCase
+import com.self.kmp.domain.todo.ObserveTodosUseCase
+import com.self.kmp.domain.todo.ToggleTodoUseCase
 import org.koin.core.module.Module
 import org.koin.dsl.module
 
@@ -20,4 +24,9 @@ import org.koin.dsl.module
  */
 fun domainModule(): Module = module {
     factory { GetItemsUseCase(itemsRepository = get()) }
+
+    factory { ObserveTodosUseCase(todoRepository = get()) }
+    factory { AddTodoUseCase(todoRepository = get()) }
+    factory { ToggleTodoUseCase(todoRepository = get()) }
+    factory { DeleteTodoUseCase(todoRepository = get()) }
 }

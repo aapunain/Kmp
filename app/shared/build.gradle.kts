@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    // Nav3 route keys are @Serializable so they can be saved and restored.
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -77,6 +79,7 @@ kotlin {
             implementation(project(":core:data"))
             implementation(project(":core:network"))
             implementation(project(":core:concurrency"))
+            implementation(project(":core:database"))
             implementation(project(":feature:auth"))
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
@@ -89,6 +92,11 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
+
+            implementation(libs.navigation3.runtime)
+            implementation(libs.navigation3.ui)
+            implementation(libs.androidx.lifecycle.viewmodelNavigation3)
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

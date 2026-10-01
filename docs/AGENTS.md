@@ -38,6 +38,24 @@ Runs formatting, static analysis, architecture rules, coverage, and tests on
 bugs in this repo were invisible from JVM compilation alone — see
 [docs/KMP_PITFALLS.md](KMP_PITFALLS.md).
 
+## Before you write code
+
+**Do not assume. Ask.** For anything beyond a trivial, fully-specified change, resolve
+every open question with the developer *before* editing files. Specifically:
+
+- **Requirements.** What exactly should happen, including the edge cases — empty state,
+  failure, offline, first launch, permission denied. If the request doesn't say, ask.
+- **Structural decisions.** New module, new dependency, where a type lives, which layer
+  owns a behaviour, a deviation from an ADR. These are the developer's calls, not yours.
+- **Anything with more than one reasonable answer.** Present the options with a
+  recommendation and wait, rather than picking silently and reporting it afterwards.
+
+Guessing wrong costs a rewrite and erodes trust in every change that follows. A question
+costs one message. Asking is not a failure to be autonomous; shipping an unrequested
+interpretation is.
+
+Once the answers are in, implement without further check-ins until done or blocked.
+
 ## Definition of done
 
 Do not report a task complete until all of these hold.
@@ -107,6 +125,19 @@ why, but do not silently weaken it.
 
 Read the relevant ADR before proposing to change a rule. The ADR explains what the
 rule protects against, which is usually not obvious from the rule itself.
+
+## How to explain things here
+
+Lead with structure, not prose. In discussion, default to:
+
+- **Diagrams** for flow, layering and dependency direction — ASCII or Mermaid
+- **Tables** for comparisons, options and tradeoffs
+- **Bullets** for anything enumerable
+- **Short code snippets** for the shape of an API
+
+Keep paragraphs for reasoning that genuinely needs them, and keep them to a few lines.
+Give the decision, the options and the recommendation first; expand only when asked.
+A wall of text is harder to act on than a five-row table, however correct it is.
 
 ## Working style
 

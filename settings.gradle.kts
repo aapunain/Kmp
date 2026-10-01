@@ -53,6 +53,7 @@ include(":core:domain")
 include(":core:data")
 include(":core:network")
 include(":core:concurrency")
+include(":core:database")
 
 // Feature modules. Self-contained user-facing capabilities, layered internally with
 // domain/data/presentation/di packages rather than sub-modules. See ADR-0002.

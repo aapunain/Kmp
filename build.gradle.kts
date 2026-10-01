@@ -43,6 +43,7 @@ dependencies {
     kover(project(":contract"))
     kover(project(":feature:auth"))
     kover(project(":core:concurrency"))
+    kover(project(":core:database"))
     kover(project(":core:data"))
     kover(project(":core:domain"))
     kover(project(":core:network"))
@@ -86,15 +87,35 @@ kover {
                 classes("com.self.kmp.feature.auth.data.Ios*")
                 classes("com.self.kmp.feature.auth.data.Unsupported*")
                 classes("com.self.kmp.feature.auth.presentation.*DeviceAuthPrompt*")
+
+                // Room's KSP output. Nobody authored it and nobody can change it, so
+                // counting it measures the generator rather than this codebase. What it
+                // does is verified for real by RoomTodoLocalStoreTest, which runs the
+                // generated DAO against an in-memory SQLite database.
+                classes("com.self.kmp.database.internal.*_Impl")
+                classes("com.self.kmp.database.internal.*_Impl\$*")
+
+                // Room builders. They open a file-backed database in a platform-specific
+                // location, so there is nothing a host JVM test can assert about them
+                // that would not just be restating the code.
+                classes("com.self.kmp.database.internal.TodoLocalStoreFactory*")
+                classes("com.self.kmp.database.internal.DatabaseContextInitializer")
+
+                // Compose lifts the lambdas inside a @Composable into a synthetic holder
+                // class. The annotation filter above cannot see it, because the holder
+                // itself carries no annotation.
+                classes("*.ComposableSingletons*")
             }
         }
         verify {
-            // A ratchet, not a target. Measured baseline when this was introduced
-            // was 81.6% line coverage with the filters above applied. The floor
-            // sits below that so a real regression fails the build, without an
-            // arbitrary number becoming a goal in itself. Raise it as it climbs.
+            // A ratchet, not a target. The floor sits a few points below the
+            // measured number so a real regression fails the build, without an
+            // arbitrary target becoming a goal in itself. Raise it as it climbs.
+            //
+            //   81.6%  when the gate was introduced
+            //   91.3%  after :core:database and the todo feature landed
             rule {
-                minBound(75)
+                minBound(85)
             }
         }
     }
@@ -106,6 +127,7 @@ val multiplatformModules =
         ":contract",
         ":feature:auth",
         ":core:concurrency",
+        ":core:database",
         ":core:data",
         ":core:domain",
         ":core:network",

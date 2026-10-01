@@ -25,7 +25,10 @@ Legend: **[used]** is in the codebase today · **[not yet]** is worth knowing bu
 | --- | --- | --- |
 | [Ktor client](https://ktor.io/docs/client-create-new-application.html) | Multiplatform HTTP client; engine is pluggable, which is why tests can swap in `MockEngine`. | **[used]** `:core:network` |
 | [Koin](https://insert-koin.io/) · [KMP setup](https://insert-koin.io/docs/reference/koin-mp/kmp/) | Runtime DI with no code generation; each module publishes its own `Module`. | **[used]** every layer; see [ADR-0009](adr/0009-koin-and-wiring-ownership.md) |
-| [Room for KMP](https://developer.android.com/kotlin/multiplatform/room) | SQLite abstraction that now works on iOS too; needs a per-platform driver factory. | **[not yet]** would land behind an interface in `:core:data` |
+| [Room for KMP](https://developer.android.com/kotlin/multiplatform/room) | SQLite abstraction that now works on iOS and desktop too; needs a per-platform driver and a KSP registration per target. | **[used]** `:core:database`; see [ADR-0016](adr/0016-room-local-persistence.md) |
+| [androidx.sqlite drivers](https://developer.android.com/kotlin/multiplatform/sqlite) | The driver layer under Room: `sqlite-bundled` ships its own SQLite for Android/JVM/iOS, and has no JS or Wasm variant. | **[used]** why JS/Wasm run an in-memory store |
+| [KSP](https://kotlinlang.org/docs/ksp-overview.html) | Kotlin symbol processing; Room's code generator. In KMP there is no single `ksp(...)` — you register one configuration per target. | **[used]** `core/database/build.gradle.kts` |
+| [Navigation 3](https://developer.android.com/guide/navigation/navigation-3) | Back stack as an ordinary observable `List<NavKey>` you own, rather than a graph the library owns. | **[used]** `:app:shared`; see [ADR-0017](adr/0017-navigation-3.md) |
 
 ## AI-assisted development
 
@@ -55,11 +58,11 @@ for why they are build failures rather than guidelines.
 
 | Document | Why |
 | --- | --- |
-| [KMP_PITFALLS.md](KMP_PITFALLS.md) | Nine traps that already cost us time. Read before touching coroutines, Ktor or the build. |
+| [KMP_PITFALLS.md](KMP_PITFALLS.md) | Every trap that has already cost us time. Read before touching coroutines, Ktor, Room or the build. |
 | [ARCHITECTURE.md](ARCHITECTURE.md) | Module boundaries, charters, and the test for adding a module. |
 | [CONVENTIONS.md](CONVENTIONS.md) | MVI shape, the two-result-type error model, DI ownership, naming. |
 | [TESTING.md](TESTING.md) | What to test in each layer, and why mocking libraries cannot be used here. |
-| [adr/](adr/) | Fourteen decisions with the reasoning and the alternatives that lost. |
+| [adr/](adr/) | Every decision with the reasoning and the alternatives that lost. |
 
 ## Adding to this file
 

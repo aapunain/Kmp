@@ -1,4 +1,4 @@
-# ADR-0004: `:core:domain` depends on nothing
+# ADR-0004: `:core:domain` depends on nothing but coroutines
 
 - **Status:** Accepted
 - **Date:** 2026-09-25
@@ -17,15 +17,27 @@ target list is still declared, there is just no platform-specific source set.
 
 ## Decision
 
-`:core:domain` has an empty `commonMain.dependencies` block. Verified:
+`:core:domain` declares exactly one dependency. Verified:
 
 ```
 > ./gradlew :core:domain:dependencies --configuration jvmCompileClasspath
 
 jvmCompileClasspath - Compile classpath for 'jvm/main'.
++--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.11.0
 \--- org.jetbrains.kotlin:kotlin-stdlib:2.4.20
-     \--- org.jetbrains:annotations:13.0
 ```
+
+**kotlinx-coroutines, declared `api`.** `suspend` is a language feature and needs no
+library, so the module was genuinely empty to begin with. The line was crossed when
+`TodoRepository` gained `observeTodos(order): Flow<List<Todo>>` — a reactive stream is
+the honest shape for "the database is the source of truth", and it cannot be expressed
+without `Flow`. `api` rather than `implementation` because `Flow` is in a public
+signature, so every consumer of that port needs the type on its own classpath.
+
+The bar this sets for a second dependency: the type must be unavoidable in a *domain
+signature*, not merely convenient in a domain implementation. `Dispatchers`,
+`CoroutineScope` and `withContext` all fail that test — scheduling is infrastructure,
+and it stays in `:core:concurrency`.
 
 Specifically excluded:
 
@@ -33,8 +45,6 @@ Specifically excluded:
   possible because use cases are public API, so the composition root can construct
   them. Modules whose implementations are `internal` must still self-wire; see
   [ADR-0009](0009-koin-and-wiring-ownership.md).
-- **kotlinx-coroutines.** `suspend` is a language feature, not a library one. Add
-  coroutines only when `Flow` appears in a repository signature, and add it as `api`.
 
 Infrastructure interfaces do not belong here either. `DispatcherProvider` lives in
 `:core:concurrency` because dispatchers are a technical concern the business logic
@@ -58,8 +68,8 @@ would look for it.
 ## Enforcement
 
 - `./gradlew architectureCheck` fails if `:core:domain` declares any project dependency.
-- A library dependency would be caught in review; the empty dependencies block plus
-  this ADR make the intent explicit.
+- A further library dependency would be caught in review. The one-line dependencies
+  block plus this ADR make a second addition conspicuous.
 
 ## Alternatives considered
 
@@ -71,3 +81,11 @@ domain's object graph.
 
 **A separate `:core:domain-di` module.** Rejected as ceremony — it would double the
 module count to relocate one function.
+
+**Keep coroutines out by having `TodoRepository` return `List<Todo>` and re-reading
+after every write.** Rejected: it pushes cache-invalidation into the view model, and
+the thing it protects — a literally empty dependencies block — is a slogan rather than
+a property anyone benefits from.
+
+**Declare coroutines `implementation` instead of `api`.** Not viable. `Flow` is in the
+return type of a public interface method, so consumers cannot compile without it.

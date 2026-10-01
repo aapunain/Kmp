@@ -151,3 +151,177 @@ like `MagicNumber`.
 Pointing detekt at module directories picks up generated Compose resource accessors,
 which produce findings nobody can act on. Scope it with
 `include("**/src/**/*.kt")` and `exclude("**/build/**")`.
+
+---
+
+## 10. KSP is incompatible with the Gradle configuration cache
+
+**2026-09.** Found the moment Room's KSP processor was added to `:core:database`.
+
+```
+Configuration cache state could not be cached: field 'processorClasspath' of task
+':core:database:kspAndroid' of type 'com.google.devtools.ksp.gradle.KspAATask':
+error writing value of type 'org.gradle.api.internal.file....'
+```
+
+This is a hard failure, not a warning — every build fails while the cache is on. It
+is not fixable from this side; it is a KSP limitation.
+
+**Resolution.** `org.gradle.configuration-cache=false` in `gradle.properties`, with the
+reason recorded next to it. Builds are slower because every invocation re-runs
+configuration. `org.gradle.caching=true` stays on and still does most of the work.
+
+Re-test this whenever KSP is upgraded. It is the single biggest build-speed item we
+are carrying, and it is the main practical cost of choosing Room over SQLDelight —
+see [ADR-0016](adr/0016-room-local-persistence.md).
+
+---
+
+## 11. Room KMP needs a KSP configuration per target, and there is no `ksp(...)`
+
+**2026-09.** Found by `:core:database:compileKotlinIosArm64` failing on a missing
+`actual` for `AppDatabaseConstructor`.
+
+In a multiplatform project the plain `ksp(libs.room.compiler)` configuration does not
+exist. Each target has its own, and a target you forget simply gets no generated code
+— which surfaces later as a confusing "no actual for expect" error rather than as a
+missing-processor error.
+
+```kotlin
+dependencies {
+    listOf("kspAndroid", "kspJvm", "kspIosArm64", "kspIosSimulatorArm64", "kspJs", "kspWasmJs")
+        .forEach { add(it, libs.room.compiler) }
+}
+```
+
+Two more Room KMP specifics:
+
+- Room generates an `expect object ... : RoomDatabaseConstructor<T>`, so the module
+  needs `freeCompilerArgs.add("-Xexpect-actual-classes")` or every build warns about
+  generated code you cannot edit.
+- `exportSchema = true` requires the `androidx.room3` Gradle plugin to supply
+  `room.schemaLocation`. At 3.0.3 that plugin is only published as `3.1.0-alpha01`, so
+  the schema export is off until migration tests need it.
+
+Add a target to `kmp.library` and you must add its KSP configuration here too. Nothing
+enforces that link.
+
+---
+
+## 12. `sqlite-bundled` has no JS or Wasm variant
+
+**2026-09.** Found by `:core:database:compileKotlinJs` failing to resolve the driver.
+
+`androidx.sqlite:sqlite-bundled` ships a compiled SQLite for Android, JVM and Apple
+targets only. The web story is `androidx.sqlite:sqlite-web` with
+`WebWorkerSQLiteDriver` — it does exist, but it needs a JS `Worker`, which means an npm
+dependency on `@sqlite.org/sqlite-wasm`, a worker entry script, webpack wiring, and
+COOP/COEP response headers before OPFS will work.
+
+**Resolution.** The driver dependency is declared per source set (`androidMain`,
+`jvmMain`, `iosMain`), and the seam sits at the *store* rather than at the Room builder:
+`internal expect fun createTodoLocalStore()`. JS and Wasm return
+`InMemoryTodoLocalStore`, which satisfies the same port, so no layer above
+`:core:database` knows which one it got.
+
+The lesson is general: when a library covers four of five targets, put the `expect` at
+the smallest interface that lets one platform answer differently — not at the library's
+own entry point.
+
+---
+
+## 13. Navigation 3 artifacts are split across two groups
+
+**2026-09.** Found by `navigation3-ui` failing to resolve for non-Android targets.
+
+- `androidx.navigation3:navigation3-runtime` — from Google's Maven, and genuinely
+  multiplatform (common/js/jvm/native/wasm variants).
+- `org.jetbrains.androidx.navigation3:navigation3-ui` — the JetBrains port. The Google
+  artifact of the same name is Android-only.
+- `org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3` — likewise
+  JetBrains, and versioned with lifecycle rather than with Nav3.
+
+Guessing the group from the runtime artifact gives an unresolvable coordinate. This
+split is the norm for Compose Multiplatform: check whether the JetBrains port exists
+before assuming the Google coordinate is multiplatform.
+
+---
+
+## 14. `androidx.startup` providers use `android:authorities`, plural
+
+**2026-09.** Found by a manifest merger failure in `:core:database`.
+
+An `<provider>` element declares `android:authorities`, not `android:authority`. The
+singular form is silently wrong in some tools and a merger error in others, and the
+message does not name the attribute.
+
+The authority must also be unique per module, or two library manifests collide:
+
+```xml
+<provider
+    android:name="androidx.startup.InitializationProvider"
+    android:authorities="${applicationId}.androidx-startup-database"
+    android:exported="false"
+    tools:node="merge">
+```
+
+This is how `:core:database` gets an Application `Context` for Room's file path
+without asking the app to pass one in.
+
+---
+
+## 15. `stateIn(WhileSubscribed)` produces nothing until something collects
+
+**2026-09.** Found while writing `TodoViewModelTest`.
+
+A view model that exposes `flow.stateIn(viewModelScope, WhileSubscribed(5_000), initial)`
+looks like a `StateFlow` you can read, but reading `state.value` with no active
+collector returns the *initial* value forever. The upstream never runs. A test written
+the obvious way passes on a view model that is completely broken, because the initial
+value is usually the empty state.
+
+**Resolution.** Subscribe first, then assert:
+
+```kotlin
+private val mainDispatcher = UnconfinedTestDispatcher()   // one scheduler for both
+
+@Test
+fun x() = runTest(mainDispatcher) {                       // shares the scheduler
+    val viewModel = viewModel(repository)
+    backgroundScope.launch { viewModel.state.collect { } } // cancelled for us
+    // ... now state.value is real
+}
+```
+
+Two details that are easy to get wrong:
+
+- Pass the same dispatcher to `runTest` that `Dispatchers.setMain` received. A bare
+  `UnconfinedTestDispatcher()` creates its own `TestCoroutineScheduler`, and then
+  `advanceUntilIdle()` in the test body will not advance `viewModelScope`.
+- Use `backgroundScope`, not `launch`, or `runTest` waits forever for a flow that
+  never completes.
+
+---
+
+## 16. Generated code silently tanks the coverage gate
+
+**2026-09.** Found by `koverVerify` dropping from 81.6% to 38.8% in one commit.
+
+Room's KSP output (`AppDatabase_Impl`, `TodoDao_Impl` and their anonymous inner
+classes) is large, and Kover counts it like anything else. Compose is the same problem
+in a different shape: it lifts the lambdas inside a `@Composable` into a synthetic
+`ComposableSingletons$...Kt` holder, and an `annotatedBy("...Composable")` filter does
+**not** exclude it, because the holder itself carries no annotation.
+
+**Resolution.** Explicit `classes(...)` excludes in the root `kover` block, each with a
+written reason. The rule we follow: exclude code that is *generated* or that *cannot
+execute on a host JVM*, and never exclude code merely because it is untested.
+
+Confirm what is actually uncovered before adding an exclusion:
+
+```
+./gradlew koverXmlReport   # then read build/reports/kover/report.xml per class
+```
+
+In this case the report showed roughly a third of the misses were generated, and the
+rest were genuinely untested — so the fix was four exclusions plus 47 real tests.

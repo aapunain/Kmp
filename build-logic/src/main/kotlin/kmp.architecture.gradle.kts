@@ -25,7 +25,9 @@ val moduleGraph: Map<String, Set<String>> =
         ":core:concurrency" to emptySet(),
         ":feature:auth" to emptySet(),
         ":core:network" to setOf(":contract"),
-        ":core:data" to setOf(":core:domain", ":core:network", ":core:concurrency"),
+        ":core:database" to emptySet(),
+        ":core:data" to
+            setOf(":core:domain", ":core:network", ":core:concurrency", ":core:database"),
         ":presentation" to setOf(":core:domain"),
         ":app:shared" to
             setOf(
@@ -34,6 +36,7 @@ val moduleGraph: Map<String, Set<String>> =
                 ":core:data",
                 ":core:network",
                 ":core:concurrency",
+                ":core:database",
                 ":feature:auth",
             ),
         ":app:androidApp" to setOf(":app:shared"),
@@ -57,6 +60,8 @@ val moduleCharters: Map<String, String> =
             "Wire mechanics: HTTP, JSON, ApiResult. Nothing that knows what the data means.",
         ":core:data" to
             "Implements domain ports. The only place a DTO and a domain model may meet.",
+        ":core:database" to
+            "Local persistence. The only module that knows Room and SQLite exist.",
         ":presentation" to
             "Everything that knows a screen exists. Nothing that knows a network exists.",
         ":app:shared" to

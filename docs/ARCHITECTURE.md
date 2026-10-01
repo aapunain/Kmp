@@ -49,9 +49,10 @@ of truth: it is what `architectureCheck` enforces and what this section is rende
 | `:core:concurrency` | _nothing_ | Dispatchers. If it is not a CoroutineDispatcher or a scope, it goes elsewhere. |
 | `:feature:auth` | _nothing_ | Device authentication, end to end. The only module that knows BiometricPrompt and LAContext exist. |
 | `:core:network` | `:contract` | Wire mechanics: HTTP, JSON, ApiResult. Nothing that knows what the data means. |
-| `:core:data` | `:core:concurrency`, `:core:domain`, `:core:network` | Implements domain ports. The only place a DTO and a domain model may meet. |
+| `:core:database` | _nothing_ | Local persistence. The only module that knows Room and SQLite exist. |
+| `:core:data` | `:core:concurrency`, `:core:database`, `:core:domain`, `:core:network` | Implements domain ports. The only place a DTO and a domain model may meet. |
 | `:presentation` | `:core:domain` | Everything that knows a screen exists. Nothing that knows a network exists. |
-| `:app:shared` | `:core:concurrency`, `:core:data`, `:core:domain`, `:core:network`, `:feature:auth`, `:presentation` | Composition root. Wires DI modules and hosts navigation. No logic of its own. |
+| `:app:shared` | `:core:concurrency`, `:core:data`, `:core:database`, `:core:domain`, `:core:network`, `:feature:auth`, `:presentation` | Composition root. Wires DI modules and hosts navigation. No logic of its own. |
 | `:app:androidApp` | `:app:shared` | Android entry point and platform config only. |
 | `:app:desktopApp` | `:app:shared` | Desktop entry point and packaging only. |
 | `:app:webApp` | `:app:shared` | Web entry point only. |
@@ -64,12 +65,15 @@ graph TD
   ":core:concurrency"
   ":feature:auth"
   ":core:network" --> ":contract"
+  ":core:database"
   ":core:data" --> ":core:concurrency"
+  ":core:data" --> ":core:database"
   ":core:data" --> ":core:domain"
   ":core:data" --> ":core:network"
   ":presentation" --> ":core:domain"
   ":app:shared" --> ":core:concurrency"
   ":app:shared" --> ":core:data"
+  ":app:shared" --> ":core:database"
   ":app:shared" --> ":core:domain"
   ":app:shared" --> ":core:network"
   ":app:shared" --> ":feature:auth"
